@@ -7,6 +7,7 @@ import android.graphics.Point;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
@@ -194,7 +195,20 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
 
     @Override
     public void onLocalStream(MediaStream localStream) {
-        localStream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
+        VideoRenderer.Callbacks callbacks=new VideoRenderer.Callbacks(){
+
+            @Override
+            public void renderFrame(VideoRenderer.I420Frame i420Frame) {
+                Log.v("xhw","renderFrame height="+i420Frame.height+" width="+i420Frame.width+" array="+i420Frame.yuvPlanes);
+            }
+            @Override
+            public boolean canApplyRotation() {
+                return false;
+            }
+        };
+
+        localStream.videoTracks.get(0).addRenderer(new VideoRenderer(callbacks));
+//        localStream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
         VideoRendererGui.update(localRender,
                 LOCAL_X_CONNECTING, LOCAL_Y_CONNECTING,
                 LOCAL_WIDTH_CONNECTING, LOCAL_HEIGHT_CONNECTING,

@@ -260,6 +260,20 @@ public class WebRtcClient {
             this.id = id;
             this.endPoint = endPoint;
 
+            // 创建 DataChannel
+            DataChannel.Init init = new DataChannel.Init();
+            init.ordered = true;
+            DataChannel  mDataChannel = pc.createDataChannel("P2P MSG DC", init);
+            mDataChannel.registerObserver(new DataChannel.Observer() {
+                @Override
+                public void onStateChange() {
+
+                }
+                @Override
+                public void onMessage(DataChannel.Buffer buffer) {
+                    Log.v("xhw","onMessage buffer="+buffer.data);
+                }
+            });
             pc.addStream(localMS); //, new MediaConstraints()
 
             mListener.onStatusChanged("CONNECTING");
@@ -285,10 +299,17 @@ public class WebRtcClient {
     public WebRtcClient(RtcListener listener, String host, PeerConnectionParameters params, EGLContext mEGLcontext) {
         mListener = listener;
         pcParams = params;
+
+
+
+
+
         PeerConnectionFactory.initializeAndroidGlobals(listener, true, true,
                 params.videoCodecHwAcceleration, mEGLcontext);
         factory = new PeerConnectionFactory();
         MessageHandler messageHandler = new MessageHandler();
+
+
 
         try {
             client = IO.socket(host);
